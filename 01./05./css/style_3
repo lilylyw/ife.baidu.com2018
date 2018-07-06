@@ -1,0 +1,90 @@
+@charset "UTF-8";
+html,body,div,span,h1,h2,h3,h4,h5,h6,p,a,small,strong,var,b,u,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,section,summary,time,mark,audio,video {
+    font: inherit;
+    font-size: 100%;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+    border: 0;
+}
+article,aside,details,figure,footer,header,main,nav,section,summary {
+	display: block;
+}
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.42857143;
+	color: #333;
+	background-color: #fff;
+}
+.clearfix:before,.clearfix:after {
+	content: "";
+	display: table;
+}
+.clearfix:after {
+	clear:both;
+}
+/*For IE 6-7 only*/
+.clearfix {
+	*zoom:1;
+}
+.wrapper {
+	width: 905px;
+	height: 554px;
+	margin: 50px auto;
+	border: 1px solid #cccccc;
+}
+.wrapper .title .title-h1 {
+	font-size: 20px;
+	font-weight: 600;
+	margin-bottom: 25px;
+	text-align: left;
+	color:#ffffff;
+	padding-left: 30px;
+}
+.wrapper .title {
+	background-color: #858585;
+	height: 50px;
+	line-height: 50px;
+}
+.description {
+	height: 100px;
+	border-bottom: 1px solid #cccccc;
+}
+.description:last-child {
+	border:none;
+} 
+.description .line-description {
+	font-size: 16px;
+	font-weight: 600;
+	float: left;
+	width: 12%;
+	background-color: #d6d6d6;
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
+}
+.description  .line-box {
+	margin: 5px 10px;
+	float: left;
+}
+.description  .line-box .box-span {
+	display: inline-block;
+	margin-right: 50px;
+}
+.description  .line-box .box-span .sp-black {
+	font-weight: 600;
+	padding-right: 15px;
+}
+.description .line-box .box-span .text-black,
+.description .line-box .box-span2 .text-black {
+	font-weight: 600;
+}
+.line-box .box-span2 .text-black,
+.line-box .box-span2 .text-normal{
+	display: inline-block;
+}
+.description .line-box {
+	display: block;
+	width:80%;
+}
