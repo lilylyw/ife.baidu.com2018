@@ -1,0 +1,49 @@
+@charset "UTF-8";
+html,body,div,span,h1,h2,h3,h4,h5,h6,p,a,small,strong,var,b,u,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,section,summary,time,mark,audio,video {
+    font: inherit;
+    font-size: 100%;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+    border: 0;
+}
+article,aside,details,figure,footer,header,main,nav,section,summary {
+	display: block;
+}
+body {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	line-height: 1.42857143;
+	color: #333;
+	background-color: #fff;
+}
+.wrapper {
+	width: 905px;
+	margin: 50px auto;
+	border: 1px solid #cccccc;
+	padding: 30px 10px;
+}
+.wrapper .title .title-h1 {
+	font-size: 30px;
+	font-weight: 600;
+	margin-bottom: 25px;
+}
+.description .line-description {
+	font-size: 24px;
+	font-weight: 600;
+}
+.description  .line-box {
+	margin: 15px auto;
+}
+.description  .line-box .box-span {
+	display: inline-block;
+	margin-right: 50px;
+}
+.description  .line-box .box-span .sp-black {
+	font-weight: 600;
+	padding-right: 15px;
+}
+.description .line-box .box-span .text-black,
+.description .line-box .box-span2 .text-black {
+	font-weight: 600;
+}
