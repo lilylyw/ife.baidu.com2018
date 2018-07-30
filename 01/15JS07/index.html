@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<title>第二十五天到第二十七天--倒数开始滴答滴滴答滴</title>
+<style>
+#email-input {
+    width: 200px;
+    height: 30px;
+    border: 1px solid gray;
+    box-sizing: border-box;
+    outline: none;
+    margin-bottom: 0;
+}
+#email-sug-wrapper {
+    width: 200px;
+    border: 1px solid gray;
+    padding: 0;
+    box-sizing: border-box;
+    margin-top: -2px;
+}
+li:hover {
+  background-color: rgb(250,215,247);
+}
+.selected {
+    background-color: rgb(158,215,253);
+}
+li {
+  list-style: none;
+}
+</style>
+</head>
+<body>
+    <div class="wrapper">
+        <input id="email-input" type="text">
+        <ul id="email-sug-wrapper" class="email-sug"></ul>    
+    </div>   
+<script>
+    //邮箱后缀list参考
+    var postfixList = ['163.com','gmail.com','126.com','qq.com','263.net'];
+    var input = document.querySelector("#email-input");
+    var ul = document.querySelector("ul");
+    var selectedTipIndex = 0;
+
+    ul.onclick = function (e) { //li点击事件
+        input.value = htmlDecode(e.target.innerHTML);
+        unshow();
+    }
+    input.oninput = function(e) { //inputDom的输入监听
+     //重置选中状态
+     if (!(e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 13)) {
+          resetSelect();
+     }
+     //除首尾空格，方便根据长度判断是否显示提示框
+     input.value = getInput();
+     //获取用户输入，生成提示框中的提示内容，将提示内容添加到email-sug-wrapper中
+     makeList();
+     //控制email-sug-wrapper的显示/隐藏状态
+     ifShow();
+    }
+
+    input.onkeydown = function(e) {
+      if(e.keyCode == 40) {
+        if (selectedTipIndex != list.length - 1) {
+            selectedTipIndex++；
+        } else {
+            selectedTipIndex = 0;
+        }
+        makeList();
+      }
+      if (e.keyCode == 38) {
+         if (selectedTipIndex != 0) {
+             selectedTipIndex--;
+         }else {
+          selectedTipIndex = list.length - 1;
+         }
+         makeList();
+      }
+      if (e.keyCode == 13) {
+        input.value = htmlDecode(list[selectedTipIndex].innerHTML);
+        unshow();
+      }
+    }
+    function resetSelect() {
+      selectedTipIndex = 0;
+    }
+
+    function getInput() {//获取用户输入
+      return input.value.trim();
+    }
+    function genarateTips() {//生成提示内容
+      var a = getInput();
+      var a1 = a.split('@')[0];
+      var a2 = a.split('@')[1];
+      var b ='';
+      for (var i = 0;i < postfixList.length;i++) {
+        if(a2 == undefined) {
+           b+='<li>'+htmlEncode(a1) + '@' + postfixList[i] + '</div>';
+        } else {
+          if (postfixList[i].indexOf(a2)==0) {
+              b += ('<li>' + htmlEncode(a1) + '@' + postfixList + '</div>');
+          }
+        }
+      }
+      //返回生成的提示内容
+      return b;
+    }
+    function makeList() {
+      //获取生成提示框中的提示内容
+      var a = genarateTips();
+      ul.innerHTML = a;
+      lis = document.querySelectorAll("li");
+      lis[selectedTipIndex].setAttribute("class","selected"); 
+    }
+    //html转码
+    var htmlEncode = function (html) {
+        var  temp = document.createElement('div');
+        temp.innerHTML = html;
+        return temp.innerText || temp.textContent; 
+    }
+
+    function ifShow() {
+      var a = getInput();
+      if (a.length != 0) {
+           show();
+      }else {
+        unshow();
+      }
+    }
+    function unshow() {
+      //做具体隐藏提示框的操作
+      ul.style.display = 'none';
+    }
+    function show() {
+      //做具体显示提示框的操作
+      ul.style.display = 'block';
+    }
+</script>    
+</body>
+</html>
