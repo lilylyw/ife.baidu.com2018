@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scal=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>第三十四天到第三十六天 我是精明的小卖家（二）</title>
+<style>
+	body {
+		width: 100%;
+	}
+</style>
+</head>
+<body>
+<div style="float:left;width: 40%;">
+	<div class="check_box_group">
+		<div id="region-radio-wrapper"></div>
+		<div id="product-radio-wrapper"></div>
+	</div>
+	<div id="table-wrapper">
+		<p id="table"></p>
+	</div>
+</div>
+<div style="float:left;display:flex;flex-direction:column;">
+	<div id="svg_holder"></div>
+	<div id="canvas_holder" style="float:left;"></div>
+</div>	
+</body>
+<script src="js/ife31data.js"></script>
+<script src="js/bar.js"></script>
+<script src="js/line.js"></script>
+<script>
+	//dom select
+	var region_checkbox_group = document.getElementById("region-radio-wrapper");
+	var product_checkbox_group = document.getElementById("product-radio-wrapper");
+	var region_div = document.getElementById("region-radio-wrapper");
+	var product_div = document.getElementById("product-radio-wrapper");
+	var p_table = document.getElementById("table");
+	var div_wrap = document.getElementById("table-wrapper");
+	var table = document.getElementsByTagName("table");
+
+	//function 
+	function make_checkbox(container,prop) {
+		//create check_all select_all+select_label;
+		var select_all = document.createElement("input");
+		var select_label = document.createElement("label");
+		var select_id;
+		if(container.id == "region-radio-wrapper") {
+			select_label.innerHTML = "地区全选"；
+			select_all.setAttribute("id","region_select_all");
+			select_label.setAttribute("type","checkbox");
+			select_all.setAttribute("value",0);
+
+		} else if (container.id == "product-radio-wrapper") {
+			select_label.innerHTML = "产品全选";
+			select_all.setAttribute("id","product_select_all");
+			select_all.setAttribute("type","checkbox");
+			select_all.setAttribute("value",0);
+		}
+		//iter attr in prop
+		//suppose an checkbox prop[i] [{value:1,text:"xxx",label:"xxx",type:"checkbox"}]
+		for (var i in prop) {
+			if (prop.hasOwnProperty(i)) {
+				//console.log("prop",i,prop[i]);
+				var check = document.createElement("input");
+				var check_label = document.createElement("label");
+				if (i==0) {
+					check.setAttribute("checked","");
+				}
+				check_label.innerHTML = prop[i].label;
+				check_label.setAttribute("id",prop[i].id);
+				check.setAttribute("id",prop[i].id);
+				check.setAttribute("value",prop[i].value);
+				check.setAttribute("text",prop[i].text);
+				check.setAttribute("type",prop[i].type);
+				container.appendChild(check);
+				container.appendChild(check_label);
+				//add every checkbox
+			}
+		}
+		container.appendChild(select_all);
+		container.appendChild(select_label);
+		//add select_all checkbox
+
+		container.addEventListener("click",function(e) {
+			if (e["target"].type == "checkbox") {
+				var input = e["target"];
+				//地区全选
+				if (input.id == "region_select_all") {
+					//click and then be true
+					//若点击后，全选被勾上
+					if (input.checked == true) {
+						var child = input.parentNode.children;
+						for (var i in child){
+							if (child.hasOwnProperty(i)) {
+								if (child[i].type == "checkbox") {
+									if (!child[i].checked) {
+										child[i].checked = true;
+									}
+								}
+							}
+						}
+					}
+					else {
+						//若点击后，全选被取消；
+                        var child = input.parentNode.children;
+                        for (var i in child) {
+                        	if (child.hasOwnProperty(i)) {
+                        		if (child[i].type == "checkbox") {
+                        			if (child[i].checked) {
+                        				child[i].checked = false;
+                        			}
+                        		}
+                        	}
+                        }
+                        child[0].checked = true; //给一个默认的选定
+					}
+				}
+				//产品全选
+				else if (input.id == "product_select_all") {
+					if (input.checked == true) {
+						var child = input.parentNode.children;
+						for (var i in child) {
+							if (child.hasOwnProperty(i)) {
+								if(child[i].type == "checkbox") {
+									if (!child[i].checked) {
+										child[i].checked = true;
+									}
+								}
+							}
+						}
+					} else {
+						//若点击后，全选被取消；
+						var child = input.parentNode.children;
+						for (var i in child) {
+							if (child.hasOwnProperty(i)) {
+								if (child[i].type == "checkbox") {
+									if (child[i].checked) {
+										child[i].checked = false;
+									}
+								}
+							}
+						}
+						child[0].checked = true; //给一个默认的选定
+					}
+				}
+				//其余checkbox
+				else {
+					//input.checked,we get this value after click is done,
+					//that is to say,we get the after state,but not current state;
+					var target = e["target"];
+					var child = e["target"].parentNode.children;
+					var counter = 0;
+					for (var i in child) {
+						if(child.hasOwnProperty(i)) {
+							//count all checked checkbox
+							if (child[i].type == "checkbox" && (child[i].id != "region_select_all" && child[i].id != "product_select_all")) {
+								if (child[i].checked == false) {
+									counter++;
+								}
+							}
+						}
+					}
+					if (target.type == "checkbox" && (target.id != "region_select_all" && target.id != "product_select_all")) {
+						if (false == target.checked && counter != 3) {
+							target.checked = false;
+						} else {
+							target.checked = true;
+						}
+					}
+				}
+			}
+		})
+	}
+	//draw table when div change;
+	function div_change(container) {
+		//bind event listener;
+		container.addEventListener("change",function(e) {
+			//console.log("changed triggerd",container.id)
+			var region_child = region_div.children;
+			var product_child = product_div.children;
+			var region_arr = cal_checked(region_child);
+			var product_arr = cal_checked(product_child);
+			var region_checked_num = region_arr[region_arr.length - 1];
+			var product_checked_num = product_arr[product_arr.length - 1];
+			var mode;
+			var result = "";
+			//console.log("region arr",region_arr,"product_arr",product_arr);
+			//console.log("region num",region_checked_num,"product num",product_checked_num)
+			if (region_checked_num == 1 && product_checked_num == 1) {
+				var mode = "p1r2";
+			} else if (region_checked_num == 1 && product_checked_num > 1){
+				var mode = "r1p2";
+			} else if (region_checked_num > 1 && product_checked_num == 1) {
+				var mode = "p1r2";
+			} else if (region_checked_num > 1 && product_checked_num > 1) {
+				var mode = "p1r2";
+			}
+
+			var table_arr = render(region_arr,product_arr,mode);
+			//console.log(region_arr,product_arr,table_arr)
+		}) 
+	}
+	function dom_render_table(r_arr,p_arr,mode) {
+		//product | region | sale
+		var month_tr_data = [
+            [1],
+            [2],
+            [3],
+            [4],
+            [5],
+            [6],
+            [7],
+            [8],
+            [9],
+            [10],
+            [11],
+            [12]
+		];
+		if (mode == "p1r2") {
+			//1 or 2 or 3 product & 2 or 3 region
+			//table
+			//tr < th colspan="r_arr.length">pro1/th  | th pro2/th.../tr
+			//tr th 月份/th th reg1/th th reg2/th .. /tr |
+			//
+			// table
+			var table_append = document.createElement("table");
+
+			//build first line table head
+			//build content array
+			//[
+            // [1,pro[i].reg[j].sale[k]]
+			//]
+			//
+			var i = 0;
+			i = 0;
+			//p_arr["pro1","pro2",selected_num]
+			//r_arr["reg1",...,"reg3",selected_num]
+			for (i;i < sourceDate.length;i++) {
+				if (sourceData[i].product == p_arr[j]) {
+					var k = 0;
+					for (k;k < month_tr_data.length;k++) {
+						var fuck = 0;
+						for (k;k < month_tr_data.length;k++) {
+							var fuck = 0;
+							for (fuck;fuck < r_arr.length - 1;fuck++) {
+								if (sourceData[i].region == r_arr[fuck]) {
+									month_tr_data[k].push(sourceData[i].sale[k])
+								}
+							}
+						}
+					}
+				}
+			}
+			//make t_content with the array
+			//month_tr_data = [
+            // [1,reg1.pro1,reg2.pro1,reg3.pro1,reg1.pro2,reg2.pro2....]
+			//]
+			var region_selected_num = r_arr[r_arr.length - 1] + 1; //add a column "月份"
+			var product_selected_num = p_arr[p_arr.length - 1];
+			var iter_time = region_selected_num * product_selected_num;
+
+			i = 0;
+			for (i;i<month_tr_data.length;i++) {
+				t_content += table_tr_head;
+				var j = 1;  //fixed j=0的话是从月份开始
+				var k = 0;
+				for (j,k;j < month_tr_data[i].length,k < iter_time;j++,k++) {
+					if (k % region_selected_num == 0) {
+						t_content += table_td_head + month_tr_data[i][0] + table_td_tail;
+						j -= 1;
+					} else {
+						t_content += table_td_head + month_tr_data[i][j] + table_td_tail;
+					}
+				}
+				t_content += table_tr_tail;
+			}
+		} else if (mode == "r1p2") {
+			//one region 2 or 3 product
+			// table 
+			// tr th 华北/th /tr
+			// tr th 月份/th th pro1 /th th pro2/th th pro3/th /tr
+			// tr td 0+1 /td td pro1[0]/td td pro2[0]..
+			// tr td 1+1 /td td pro1[1]/td td pro2[1]..
+			// table
+			// build table head
+
+
+			//build table content array
+			i = 0;
+			for (i;i<sourceData.length;i++) {
+				if (sourceData[i].region == r_arr[0]) {
+					var j = 0;
+					for (j;j < p_arr.length - 1;j++) {
+						if (sourceData[i].product == p_arr[j]) {
+							var k = 0;
+							for (k; k < month_tr_data.length;k++) {
+								month_tr_data[k].push(sourceData[i].sale[k]);
+							}
+						}
+					}
+				}
+			}
+			//build table content
+			//i
+			// | j
+			// [ [1,x,y] ]
+			i = 0;
+			for (i;i < month_tr_data.length;i++) {
+				t_content += table_tr_head;
+				var j = 0;
+				for (j;j < month_tr_data[i].length;j++) {
+					t_content += table_td_head + month_tr_data[i][j] + table_td_tail;
+				}
+				t_content += table_tr_tail;
+			}
+		}
+	}
+	function render(r_arr,p_arr,mode) {
+		//console.log("r_arr",r_arr,"p_arr",p_arr,"mode",mode);
+
+		//product | region | sale
+		var table_head = "<table>";
+		var table_tail = "</table>";
+		var table_tr_head = "<tr>";
+		var table_tr_tail = "</tr>";
+		var table_th_head = "<th>";
+		var table_th_tail = "</th>";
+		var table_td_head = "<td>";
+		var table_td_tail = "</td>";
+		var t_header = "";
+		var t_content = "";
+		var month_tr_data = [
+            [1],
+            [2],
+            [3],
+            [4],
+            [5],
+            [6],
+            [7],
+            [8],
+            [9],
+            [10],
+            [11],
+            [12],
+		];
+		if (mode == "p1r2") {
+			//b1 or 2 or 3 product & 2 or 3 region
+			//table
+			//tr < th colspan="r_arr.lenght">pro1 /th  |   th pro2/th.../tr
+			//tr rh 月份/th th reg1/th th reg2/th .. tr
+			//
+			//table
+			//build first line table head
+			var i = 0;
+			for (i;i < p_arr.length - 1;i++) {
+				if (i == 0) {
+					t_header += table_tr_head + table_th_head.slice(0,3) + "colspan=\"" +r_arr.length + "\">"+ p_arr[i] + table_th_tail;
+				} else if (i + 1 != p_arr.length - 1) {
+					t_header += table_th_head.slice(0,3) + " colspan=\"" + r_arr.length +"\">" + p_arr[i] + table_th_tail;
+				} else {
+					t_header += table_th_head.slice(0,3) +"colspan=\"" r_arr.length + "\">" + p_arr[i] + table_th_tail + table_tr_tail ;
+				}
+			}
+            //build second line table head
+            i = 0;
+            for(i;i < p_arr.length - 1; i++ ) {
+            	var j = 0;
+            	for (j;j < r_arr.length;j++) {
+            		if (i == 0 && j== 0 ){
+            			t_header == table_tr_head + table_th_head + "月份" + table_th_tail;
+            		} else if (j == 0) {
+            			t_header += table_th_head + "月份" + table_th_tail;
+            		} else if ((i + 1 == p_arr.length) && (j + 1 == r_arr.length)) {
+            			t_header += table_th_head + r_arr[j - 1] + +table_th_tail + table_tr_tail;
+            		} else {
+            			t_header += table_th_head + r_arr[j - 1] + table_th_tail;
+            		}
+            	}
+            }
+            //build content array
+            //[
+            //   [a,prop[i].reg[j].sale[k]]
+            //]
+            //
+            i = 0;
+            // p_arr["pro1","pro2",selected_num]
+            // r_arr["reg1",..,"reg3",selected_num]
+            for (i;i < sourceData.length;i++) {
+            	var j = 0;
+            	for (j;j < p_arr.length - 1;j++) {
+            		if (sourceData[i].product == p_arr[j]) {
+            			var k = 0;
+            			for (k;k < month_tr_data.length;k++) {
+            				var fuck = 0;
+            				for (fuck;fuck < r_arr.length - 1;fuck++) {
+            					if (sourceData[i].region == r_arr[fuck]) {
+            						month_tr_data[k].push(sourceData[i].sale[k])
+            					}
+            				}
+            			}
+            		}
+            	}
+            }
+            //console.log("p1r2,after search,data:",month_tr_data);
+            //make t_content with the array
+            //month_tr_data = [
+            //  [1,reg1.pro1,reg2.pro1,reg3.pro1,reg1.pro2,reg2.pro2....]
+            //]
+            var region_selected_num = r_arr[r_arr.length - 1] + 1; //add a column "月份"
+            var product_selected_num = p_arr[p_arr.length - 1];
+            var iter_time = region_selected_num * product_selected_num;
+            //console.log("r_s_n",region_selected_num,"p_s_n",product_selected_num,"iter_time",iter_time,"data",month_tr_data);
+            i = 0;
+            for (i;i/,month_tr_data.length;i++) {
+            	t_content += table_tr_head;
+            	var j = 1; //fixed j=0的话是从月份开始
+            	var k = 0;
+            	for (j,k;j < month_tr_data[i].length,k < iter_time;j++,k++) {
+            		if (k % region_selected_num == 0) {
+            			t_content += table_td_head + month_tr_data[i][0] + table_td_tail;
+            			j -=1;
+            		} else {
+            			t_content += table_td_head + month_tr_data[i][j] + table_td_tail;
+            		}
+            	}
+            	t_content += table_tr_tail;
+            }
+            //console.log("p1r2",t_content)
+		} else if (mode == "r1p2") {
+			//one region 2 or 3 product
+			// table
+			// tr th 华北/th /tr
+			// tr th 月份/th th pro1 /th th pro2/th th pro3 /th /tr
+			// tr td 0+1 /td td pro1[0]/td td pro2[0] ..
+			// tr td 1+1 /td td pro1[1]/td td pro2[1] ..
+			// table
+			// build table head
+			t_header += table_tr_head + table_th_head + r_arr[0] + table_th_tail + table_tr_tail;
+			t_header += table_tr_head + table_th_head + "月份" +table_th_tail;
+			var i = 0;
+			for (i;i<p_arr.length - 1;i++) {
+				if (i + 1 != p_arr.length - 1) {
+					if (i + 1 != p_arr.length - 1) {
+						t_header += table_th_head + p_arr[i] +table_th_tail;
+					} else {
+						t_header += table_th_head + p_arr[i] + table_th_tail + table_tr_tail;
+					}
+				}
+				//build table content array
+				i = 0;
+				for (i;i < sourceData.length;i++) {
+					if (sourceData[i].region == r_arr[0]) {
+						var j = 0;
+						for (j;j < p_arr.length - 1;j++) {
+							if (sourceData[i].product == p_arr[j]) {
+								var k = 0;
+								for (k;k < month_tr_data.length;k++) {
+									month_tr_data[k].push(sourceData[i].sale[k]);
+								}
+							}
+						}
+					}
+				}
+				//console.log("r1p2,after building array",month_tr_data);
+				//build table content
+				// i
+				// | j
+				// [ [1,x,y] ]
+				i = 0;
+				for (i;i < month_tr_data.length;i++) {
+					t_content += table_tr_head;
+					var j = 0;
+					for (j;j < month_tr_data[i].length;j++) {
+						t_content += table_td_head + month_tr_data[i][j] + table_td_tail;
+					}
+					t_content += table_tr_tail;
+				}
+				//console.log("r1p2",t_content);
+			} 
+			div_wrap.innerHTML = table_head + t_header + t_content + table_tail;
+			return month_tr_data;
+		}
+		function cal_checked(container) {
+			var arr = []
+			var counter = 0;
+			for (var i in container) {
+				if (container.hasOwnProperty(i)) {
+					if (container[i].type == "checkbox") {
+						if (container[i].checked && (container[i].id != "region_select_all" && container[i].id != "product_select_all")) {
+							arr.push(container[i].value);
+							counter++;
+						}
+					}
+				}
+			}
+			arr.push(counter);
+			return arr;
+		}
+		//function call
+		div_change(region_checkbox_group);
+		div_change(product_checkbox_group);
+		make_checkbox(region_checkbox_group,[{
+			type:"checkbox",
+			text:"华南地区",
+			label:"华南",
+			value:"华南",
+			id:"checkbox1",
+		}, {
+			type:"check",
+			text:"华东地区",
+			label:"华东",
+			value: "华东",
+			id: "checkbox2"
+		},
+		{
+			type: "checkbox",
+			text: "华北地区",
+			label: "华北",
+			value: "华北" ,
+            id: "checkbox3"
+		}
+		]);
+		make_checkbox(product_checkbox_group,[{
+			type: "checkbox",
+			text: "手机",
+			label: "手机",
+			value: "手机", 
+            id: "checkbox4",
+		},
+		{
+			type: "checkbox",
+			text: "笔记本",
+			label: "笔记本",
+			value: "笔记本",
+			id: "checkbox5",
+		},
+		{
+			type: "checkbox",
+			text: "智能音箱",
+			label: "智能音箱",
+			value: "智能音箱",
+			id:"checkbox6",
+		}
+		]);
+	}
+</script>
+</html>
