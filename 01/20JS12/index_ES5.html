@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<title>第四十二天到第四十三天：开一家餐厅吧（一）</title>
+<style>
+
+</style>
+</head>
+<body>
+    
+<script>
+    var id_index = 0;  //重置id计数器
+    function generateID() {  //利用生成器自动生成id，避免手动输入可能造成的id重复
+      id_index++;
+      return id_index;
+    }
+
+    function Restaurant(attr) { //参数设为数组，以符合测试用例
+      this.cash = attr.cash;
+      this.seats = attr.seats;
+      this.staff = attr.staff;
+    }
+    Restaurant.prototype.hire = function (staff) {
+      this.staff(staff);
+    }
+    Restaurant.prototype.fire = function(staff) {
+      for (var i = 0;i < this.staff.length;i++) {
+        if (staff.id == this.staff[i].id) {
+            this.staff.splice(i,1);
+            break; //因为id唯一，找到后就直接跳出循环
+        }
+      }
+    }
+    function Staff(name,salary) {
+      this.id = generateID();
+      this.name = name;
+      this.salary = salary;
+    }
+
+    Staff.prototype.work = function() {
+    }
+
+    function Waiter(name,salary) {
+      Staff.call(this,name,salary);
+    }
+    Cook.prototype = Object.create(Staff.prototype);
+    Cook.prototype.constructor = Cook;
+    Cook.prototype.work = function() {
+      return "Taste my artwork!";
+    }
+
+    function Customer() {
+    }
+
+    Customer.prototype.order = function() {
+      return "I'd like to order...";
+    }
+    Customer.prototype.eat = function() {
+      return "Em,delicious!";
+    }
+
+    function Dish(name,cost,price) {
+      this.name = name;
+      this.cost = cost;
+      this.price = price;
+    }
+
+    //----测试用例----
+    var ifeRestaurant = new Restaturant({
+      cash: 1000000;
+      seats: 20;
+      staff: []
+    });
+
+    var newCook = new Cook("Tony",10000);
+    ifeRestaurant.hire(newCook);
+    console.log(ifeRestaurant.staff);
+    
+    ifeRestaurant.fire(newCook);
+    console.log(ifeRestaurant.staff);
+    //--------     
+</script>    
+</body>
+</html>
